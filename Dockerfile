@@ -1,4 +1,4 @@
-FROM ros:jade-base
+FROM ros:jade-ros-base
 
 MAINTAINER Jerome Guzzi jerome@idsia.ch
 
@@ -8,10 +8,15 @@ ENV HOME /home/root
 RUN apt-get update && apt-get install -y \
     build-essential \
     libgps-dev \
+    ros-jade-roscpp \
+    ros-jade-nodelet \
     ros-jade-image-transport-plugins \
     ros-jade-mavros \
     ros-jade-usb-cam \
-    ros-jade-image_common \
+    ros-jade-image-common \
+    ros-jade-diagnostic-updater \
+    ros-jade-dynamic-reconfigure \    
+    ros-jade-geometry \
     git \
     autoconf \
     automake \
@@ -41,14 +46,16 @@ RUN git clone https://github.com/jeguzzi/gps_umd.git ~/catkin_ws/src/gps_umd
 RUN git clone https://github.com/KumarRobotics/camera_base.git ~/catkin_ws/src/camera_base
 RUN git clone https://github.com/KumarRobotics/bluefox2.git ~/catkin_ws/src/bluefox2
 
-RUN '~/catkin_ws/src/bluefox2/install/install.bash'
+RUN home/root/catkin_ws/src/bluefox2/install/install.bash
 
 RUN git clone  https://github.com/jeguzzi/odroid_manet.git ~/catkin_ws/src/odroid_manet
 
-RUN /bin/bash -c '. /opt/ros/jade/setup.bash; catkin_make -C ~/catkin_ws'
+RUN /bin/bash -c '. /opt/ros/jade/setup.bash; catkin_make -j1 -C ~/catkin_ws'
 RUN /bin/sed -i \
     '/source "\/opt\/ros\/$ROS_DISTRO\/setup.bash"/a source "\/home\/root\/catkin_ws\/devel\/setup.bash"'\
     /ros_entrypoint.sh
 
 ENTRYPOINT ["/ros_entrypoint.sh"]
 CMD ["bash"]
+
+RUN /bin/bash -c 'pushd ~/catkin_ws/src/odroid_manet; git pull; popd'
