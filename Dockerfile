@@ -58,4 +58,11 @@ RUN /bin/sed -i \
 ENTRYPOINT ["/ros_entrypoint.sh"]
 CMD ["bash"]
 
+RUN touch ~/catkin_ws/src/nimbro_network/nimbro_log_transport/CATKIN_IGNORE 
+RUN rm ~/catkin_ws/src/nimbro_network/nimbro_topic_transport/CATKIN_IGNORE  
+
+RUN /bin/bash -c '. /opt/ros/jade/setup.bash; catkin_make -j1 -C ~/catkin_ws'
+
 RUN /bin/bash -c 'pushd ~/catkin_ws/src/odroid_manet; git pull; popd'
+
+
